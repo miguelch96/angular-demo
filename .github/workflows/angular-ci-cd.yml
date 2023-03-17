@@ -9,10 +9,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: "Ejecutar pruebas"
-        run: |
-          echo "Ejecutando pruebas...."
-          echo "Escaneando codigo con Sonarcloud...."
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - run: |
+        npm ci
+        npm test
   sca:
     runs-on: ubuntu-latest
     steps:
