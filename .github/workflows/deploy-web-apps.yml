@@ -1,0 +1,60 @@
+name: Reusable WebApp for Container deployment
+on:
+  workflow_call:
+    inputs:
+      registry-url:
+        description: "Registry donde se publicara la imagen de docker"
+        required: true
+        type: string
+      image:
+        description: "Imagen de docker a desplegar"
+        required: true
+        type: string
+      webapp-name:
+        description: "Nombre del webapp"
+        required: true
+        type: string
+    secrets:
+      REGISTRY_USERNAME:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
+      AZURE_CREDENTIALS:
+        required: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Azure Login"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Set Web App ACR authentication
+        uses: Azure/appservice-settings@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-settings-json: |
+            [
+                {
+                    "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                    "value": "${{ secrets.REGISTRY_PASSWORD }}",
+                    "slotSetting": false
+                },
+                {
+                    "name": "DOCKER_REGISTRY_SERVER_URL",
+                    "value": "${{ inputs.registry-url }}",
+                    "slotSetting": false
+                },
+                {
+                    "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                    "value": "${{ secrets.REGISTRY_USERNAME  }}",
+                    "slotSetting": false
+                }
+            ]
+      - name: 'Deploy to Azure WebApp'
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          images: "${{ inputs.image }}"
+
+

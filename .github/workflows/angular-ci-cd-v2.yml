@@ -81,38 +81,16 @@ jobs:
           docker push mchipacr.azurecr.io/angular-hello-word:${{ github.sha }} 
 
   deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: "Azure Login"
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Set Web App ACR authentication
-        uses: Azure/appservice-settings@v1
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          app-settings-json: |
-            [
-                {
-                    "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-                    "value": "${{ secrets.REGISTRY_PASSWORD }}",
-                    "slotSetting": false
-                },
-                {
-                    "name": "DOCKER_REGISTRY_SERVER_URL",
-                    "value": "mchipacr.azurecr.io",
-                    "slotSetting": false
-                },
-                {
-                    "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-                    "value": "${{ secrets.REGISTRY_USERNAME  }}",
-                    "slotSetting": false
-                }
-            ]
-      - name: 'Deploy to Azure WebApp'
-        uses: azure/webapps-deploy@v2
-        with: 
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: "mchipacr.azurecr.io/angular-hello-word:${{ github.sha }}"
+    uses: ./.github/workflows/deploy-web-apps.yml
+    with:
+      registry-url: mchipacr.azurecr.io
+      image: mchipacr.azurecr.io/angular-hello-word:${{ github.sha }}
+      webapp-name: mchipangulardemo
+    secrets:
+      REGISTRY_USERNAME:  ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD:  ${{ secrets.REGISTRY_PASSWORD }}
+      AZURE_CREDENTIALS:  ${{ secrets.AZURE_CREDENTIALS }}
+        
+
+          
         
