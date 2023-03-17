@@ -20,9 +20,6 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - run: |
           npm ci
           npm test
@@ -39,20 +36,6 @@ jobs:
         run: |
           npm ci
           npm run build
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ng-app
-          path: |
-            Dockerfile
-            dist
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: ng-app
       - uses: azure/docker-login@v1
         with:
           login-server: mchipacr.azurecr.io
@@ -62,6 +45,21 @@ jobs:
         run: |
           docker build . -t mchipacr.azurecr.io/angular-hello-word:${{ github.sha }}
           docker push mchipacr.azurecr.io/angular-hello-word:${{ github.sha }} 
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ng-app
+      #     path: |
+      #       Dockerfile
+      #       dist
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # - name: Download artifact from build job
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: ng-app
+      
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
