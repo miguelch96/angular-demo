@@ -58,7 +58,7 @@ jobs:
       - name: Build and push docker image
         run: |
           docker build . -t mchipacr.azurecr.io/angular-hello-word:${{ github.sha }}
-          docker push contoso.azurecr.io/nodejssampleapp:${{ github.sha }} 
+          docker push mchipacr.azurecr.io/angular-hello-word:${{ github.sha }} 
       - uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
